@@ -15,6 +15,7 @@ export function DocumentDetail({ id, onBack, notice }: Props) {
   const [document, setDocument] = useState<DocumentRecord | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -33,7 +34,7 @@ export function DocumentDetail({ id, onBack, notice }: Props) {
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [id]);
+  }, [id, retryKey]);
 
   return (
     <main className={styles.main}>
@@ -47,9 +48,21 @@ export function DocumentDetail({ id, onBack, notice }: Props) {
       )}
       {loading && <p className={styles.status}>Carregando documento...</p>}
       {error && (
-        <p className="errorMessage" role="alert">
-          {error}
-        </p>
+        <div className={styles.errorArea}>
+          <p className="errorMessage" role="alert">
+            {error}
+          </p>
+          <button
+            className="button buttonSecondary"
+            onClick={() => {
+              setError(null);
+              setLoading(true);
+              setRetryKey((value) => value + 1);
+            }}
+          >
+            Tentar novamente
+          </button>
+        </div>
       )}
       {document && (
         <div className={styles.layout}>

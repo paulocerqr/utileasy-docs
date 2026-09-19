@@ -19,6 +19,7 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => setQuery(search.trim()), 300);
@@ -46,7 +47,7 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [query, refreshKey]);
+  }, [query, refreshKey, retryKey]);
 
   async function loadMore() {
     setLoadingMore(true);
@@ -91,9 +92,20 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
       </label>
 
       {error && (
-        <p className="errorMessage" role="alert">
-          {error}
-        </p>
+        <div className={styles.errorArea}>
+          <p className="errorMessage" role="alert">
+            {error}
+          </p>
+          <button
+            className="button buttonSecondary"
+            onClick={() => {
+              setLoading(true);
+              setRetryKey((value) => value + 1);
+            }}
+          >
+            Tentar novamente
+          </button>
+        </div>
       )}
 
       <div className={styles.list} aria-busy={loading}>

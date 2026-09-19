@@ -24,6 +24,7 @@ export function CommentsPanel({ documentId }: Props) {
   const [saving, setSaving] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -46,7 +47,7 @@ export function CommentsPanel({ documentId }: Props) {
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [documentId]);
+  }, [documentId, retryKey]);
 
   async function loadMore() {
     setLoadingMore(true);
@@ -101,6 +102,18 @@ export function CommentsPanel({ documentId }: Props) {
     <section className={styles.panel} aria-labelledby="comments-title">
       <h2 id="comments-title">Comentários</h2>
       <div className={styles.history} aria-live="polite">
+        {error && !loading && comments.length === 0 && (
+          <button
+            className="button buttonSecondary"
+            onClick={() => {
+              setError(null);
+              setLoading(true);
+              setRetryKey((value) => value + 1);
+            }}
+          >
+            Tentar carregar comentários
+          </button>
+        )}
         {loading ? (
           <p className={styles.status}>Carregando comentários...</p>
         ) : comments.length === 0 ? (

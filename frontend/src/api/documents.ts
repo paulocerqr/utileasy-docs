@@ -25,6 +25,19 @@ export interface CommentRecord {
 
 async function readResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
+    if (response.status === 413) {
+      throw new Error(
+        "Arquivo grande demais. O limite é de 10 MiB por arquivo.",
+      );
+    }
+    if (response.status === 429) {
+      const seconds = Number(response.headers.get("Retry-After"));
+      const wait =
+        Number.isFinite(seconds) && seconds > 0
+          ? ` Aguarde cerca de ${Math.ceil(seconds / 60)} minuto(s).`
+          : " Tente novamente mais tarde.";
+      throw new Error(`Limite de uploads atingido.${wait}`);
+    }
     const body: unknown = await response.json().catch(() => null);
     const detail =
       body &&
@@ -40,6 +53,19 @@ async function readResponse<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+async function request(input: string, init?: RequestInit): Promise<Response> {
+  try {
+    return await fetch(input, init);
+  } catch (cause) {
+    if (cause instanceof DOMException && cause.name === "AbortError")
+      throw cause;
+    throw new Error(
+      "Não foi possível conectar ao servidor. Verifique sua conexão.",
+      { cause },
+    );
+  }
+}
+
 export async function listDocuments(
   search: string,
   offset: number,
@@ -47,17 +73,17 @@ export async function listDocuments(
 ) {
   const params = new URLSearchParams({ limit: "50", offset: String(offset) });
   if (search.trim()) params.set("search", search.trim());
-  const response = await fetch(`/api/documents?${params}`, { signal });
+  const response = await request(`/api/documents?${params}`, { signal });
   return readResponse<DocumentRecord[]>(response);
 }
 
 export async function getDocument(id: number, signal?: AbortSignal) {
-  const response = await fetch(`/api/documents/${id}`, { signal });
+  const response = await request(`/api/documents/${id}`, { signal });
   return readResponse<DocumentRecord>(response);
 }
 
 export async function uploadDocument(data: FormData) {
-  const response = await fetch("/api/documents", {
+  const response = await request("/api/documents", {
     method: "POST",
     body: data,
   });
@@ -70,7 +96,7 @@ export async function listComments(
   signal?: AbortSignal,
 ) {
   const params = new URLSearchParams({ limit: "100", offset: String(offset) });
-  const response = await fetch(`/api/documents/${id}/comments?${params}`, {
+  const response = await request(`/api/documents/${id}/comments?${params}`, {
     signal,
   });
   return readResponse<CommentRecord[]>(response);
@@ -81,7 +107,7 @@ export async function createComment(
   content: string,
   authorName: string,
 ) {
-  const response = await fetch(`/api/documents/${id}/comments`, {
+  const response = await request(`/api/documents/${id}/comments`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ content, author_name: authorName.trim() || null }),
