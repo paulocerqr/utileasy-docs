@@ -8,6 +8,7 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import Engine, delete
 from sqlalchemy.orm import Session, sessionmaker
 
+from app.infrastructure.security.upload_rate_limit import RateLimitDecision
 from app.infrastructure.storage.local import LocalFileStorage
 from app.main import app
 from app.modules.documents.application.create_document import CreateDocument
@@ -17,6 +18,11 @@ from app.modules.documents.infrastructure.unit_of_work import SqlAlchemyDocument
 from app.modules.documents.presentation.router import get_create_document
 
 pytestmark = pytest.mark.integration
+
+
+class AllowAllLimiter:
+    def check_and_record(self, client_ip: str) -> RateLimitDecision:
+        return RateLimitDecision(True)
 
 
 @pytest.fixture
@@ -98,6 +104,8 @@ async def test_upload_endpoint_returns_created_then_existing(
     content = b"%PDF-1.7\n" + uuid4().hex.encode() + b"\n%%EOF\n"
     content_hash = hashlib.sha256(content).hexdigest()
     app.dependency_overrides[get_create_document] = lambda: service
+    previous_limiter = app.state.upload_limiter
+    app.state.upload_limiter = AllowAllLimiter()
 
     try:
         transport = ASGITransport(app=app)
@@ -136,9 +144,10 @@ async def test_upload_endpoint_returns_created_then_existing(
         assert second.json()["id"] == first.json()["id"]
         assert second.json()["title"] == "Documento original"
         assert invalid.status_code == 422
-        assert oversized.status_code == 422
+        assert oversized.status_code == 413
     finally:
         app.dependency_overrides.clear()
+        app.state.upload_limiter = previous_limiter
         with sessions() as session:
             session.execute(delete(DocumentModel).where(DocumentModel.sha256 == content_hash))
             session.commit()

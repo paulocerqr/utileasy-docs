@@ -9,6 +9,10 @@ class InvalidUploadError(ValueError):
     """O arquivo ou seus metadados enviados pelo usuário são inválidos."""
 
 
+class UploadTooLargeError(InvalidUploadError):
+    """O arquivo enviado excede o limite permitido."""
+
+
 class StoredFileUnavailableError(OSError):
     """O arquivo armazenado não está disponível ou está inconsistente."""
 

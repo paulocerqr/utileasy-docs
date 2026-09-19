@@ -12,6 +12,7 @@ from app.modules.documents.domain.storage import (
     InvalidUploadError,
     StagedFile,
     StoredFileUnavailableError,
+    UploadTooLargeError,
 )
 
 CHUNK_SIZE = 1024 * 1024
@@ -56,7 +57,7 @@ class LocalFileStorage:
                 while chunk := stream.read(CHUNK_SIZE):
                     size_bytes += len(chunk)
                     if size_bytes > self.max_size_bytes:
-                        raise InvalidUploadError("Arquivo excede o limite de tamanho permitido.")
+                        raise UploadTooLargeError("Arquivo excede o limite de tamanho permitido.")
                     if not first_bytes:
                         first_bytes = chunk[:16]
                     last_bytes = (last_bytes + chunk)[-2048:]

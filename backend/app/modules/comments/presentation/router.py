@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
@@ -13,6 +14,7 @@ from app.modules.comments.infrastructure.unit_of_work import SqlAlchemyCommentUn
 from app.modules.comments.presentation.schemas import CommentResponse, CreateCommentRequest
 
 router = APIRouter(prefix="/documents/{document_id}/comments", tags=["comments"])
+logger = logging.getLogger(__name__)
 
 
 def get_manage_comments() -> ManageComments:
@@ -33,6 +35,7 @@ async def create_comment(
         raise HTTPException(status_code=404, detail=str(error)) from error
     except CommentValidationError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
+    logger.info("Comentário criado: documento=%s comentário=%s", document_id, comment.id)
     return CommentResponse.from_comment(comment)
 
 
