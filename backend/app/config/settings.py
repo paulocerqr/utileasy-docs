@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://utileasydoc:change-me@localhost:5432/utileasydoc"
     upload_directory: Path = Path("uploads")
     max_upload_size_mb: PositiveInt = Field(default=10)
+    trusted_proxy_cidrs: str = ""
+    client_ip_header: str = "X-Utileasy-Client-IP"
+    upload_rate_limit_short: PositiveInt = 5
+    upload_rate_limit_daily: PositiveInt = 20
 
 
 @lru_cache

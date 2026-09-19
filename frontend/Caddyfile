@@ -1,11 +1,19 @@
 :80 {
 	encode zstd gzip
+	log {
+		output stdout
+		format json
+	}
 	request_body /api/documents {
 		max_size 12MB
 	}
 
 	handle /api/* {
-		reverse_proxy backend:8000
+		reverse_proxy backend:8000 {
+			# Sobrescreve qualquer valor enviado pelo cliente antes de encaminhar à API.
+			header_up X-Utileasy-Client-IP {http.request.header.Cf-Connecting-Ip}
+			header_up -Cf-Connecting-Ip
+		}
 	}
 
 	handle {

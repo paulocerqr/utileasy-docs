@@ -5,6 +5,7 @@ from sqlalchemy import engine_from_config, pool
 
 from app.config.settings import get_settings
 from app.infrastructure.database.base import Base
+from app.infrastructure.database.upload_attempts import UploadAttemptModel  # noqa: F401
 from app.modules.comments.infrastructure.models import CommentModel  # noqa: F401
 from app.modules.documents.infrastructure.models import DocumentModel  # noqa: F401
 

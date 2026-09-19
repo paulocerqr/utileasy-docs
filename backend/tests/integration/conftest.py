@@ -1,5 +1,6 @@
 import os
 from collections.abc import Generator
+from pathlib import Path
 
 import pytest
 from alembic import command
@@ -15,7 +16,9 @@ def postgres_engine() -> Generator[Engine]:
     if database_url is None:
         pytest.skip("TEST_DATABASE_URL is required for PostgreSQL integration tests")
 
-    alembic_config = Config("alembic.ini")
+    backend_root = Path(__file__).resolve().parents[2]
+    alembic_config = Config(str(backend_root / "alembic.ini"))
+    alembic_config.set_main_option("script_location", str(backend_root / "migrations"))
     alembic_config.set_main_option("sqlalchemy.url", database_url.replace("%", "%%"))
     command.upgrade(alembic_config, "head")
 
