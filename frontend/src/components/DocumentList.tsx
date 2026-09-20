@@ -80,9 +80,7 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
     <main className={styles.main}>
       <div className={styles.intro}>
         <h1>Documentos</h1>
-        <p>
-          Repositório de documentos.
-        </p>
+        <p>Repositório de documentos.</p>
       </div>
 
       <div className={styles.filters}>
