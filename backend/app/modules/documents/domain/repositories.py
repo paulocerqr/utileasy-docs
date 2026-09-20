@@ -12,6 +12,8 @@ class DocumentRepository(Protocol):
 
     def get_by_id(self, document_id: int) -> Document | None: ...
 
+    def count_all(self) -> int: ...
+
     def list_all(
         self,
         search: str | None = None,

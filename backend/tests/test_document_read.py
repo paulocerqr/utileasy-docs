@@ -44,6 +44,9 @@ class FakeRepository:
     def get_by_id(self, document_id: int) -> Document | None:
         return next((item for item in self._documents if item.id == document_id), None)
 
+    def count_all(self) -> int:
+        return len(self._documents)
+
 
 @pytest.fixture
 def anyio_backend() -> str:
@@ -83,6 +86,7 @@ async def test_list_detail_view_download_and_range(tmp_path) -> None:
                 "/api/documents", params={"kind": "image", "search": "contr"}
             )
             empty = await client.get("/api/documents", params={"offset": 2})
+            count = await client.get("/api/documents/count")
             detail = await client.get("/api/documents/42")
             missing = await client.get("/api/documents/99")
             invalid_limit = await client.get("/api/documents", params={"limit": 101})
@@ -98,6 +102,8 @@ async def test_list_detail_view_download_and_range(tmp_path) -> None:
             assert [item["id"] for item in images_only.json()] == [43]
             assert combined.json() == []
             assert empty.json() == []
+            assert count.status_code == 200
+            assert count.json() == {"total": 2}
             assert detail.json()["title"] == "Contrato"
             assert missing.status_code == 404
             assert invalid_limit.status_code == 422

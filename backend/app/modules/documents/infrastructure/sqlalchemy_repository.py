@@ -1,6 +1,6 @@
 from typing import cast
 
-from sqlalchemy import Select, select, text
+from sqlalchemy import Select, func, select, text
 from sqlalchemy.orm import Session
 
 from app.modules.documents.domain.entities import (
@@ -43,6 +43,9 @@ class SqlAlchemyDocumentRepository:
     def get_by_id(self, document_id: int) -> Document | None:
         model = self._session.get(DocumentModel, document_id)
         return self._to_entity(model) if model is not None else None
+
+    def count_all(self) -> int:
+        return self._session.scalar(select(func.count()).select_from(DocumentModel)) or 0
 
     def list_all(
         self,

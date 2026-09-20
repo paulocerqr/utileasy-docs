@@ -1,10 +1,23 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { listDocuments, uploadDocument } from "./documents";
+import { getDocumentCount, listDocuments, uploadDocument } from "./documents";
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe("feedback da API", () => {
+  it("obtém o total de arquivos cadastrado", async () => {
+    const fetchMock = vi.fn((input: string) => {
+      expect(input).toBe("/api/documents/count");
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ total: 57 }),
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(getDocumentCount()).resolves.toBe(57);
+  });
+
   it("envia busca, tipo e paginação na listagem", async () => {
     const fetchMock = vi.fn((input: string) => {
       expect(input).toContain("/api/documents?");

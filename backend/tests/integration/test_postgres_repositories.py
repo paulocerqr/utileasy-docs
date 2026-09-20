@@ -39,9 +39,11 @@ def test_document_repository_persists_and_searches_documents(
 ) -> None:
     repository = SqlAlchemyDocumentRepository(database_session)
 
+    assert repository.count_all() == 0
     first_id = create_document(repository, "primeiro")
     second_id = create_document(repository, "segundo")
 
+    assert repository.count_all() == 2
     assert repository.get_by_id(first_id) is not None
     assert [document.id for document in repository.list_all()] == [second_id, first_id]
     assert [document.id for document in repository.list_all("SEGUNDO")] == [second_id]

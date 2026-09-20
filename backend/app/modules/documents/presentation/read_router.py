@@ -12,7 +12,7 @@ from app.modules.documents.application.read_documents import ReadDocuments
 from app.modules.documents.domain.entities import Document, DocumentKind
 from app.modules.documents.domain.storage import StoredFileUnavailableError
 from app.modules.documents.infrastructure.unit_of_work import SqlAlchemyDocumentUnitOfWork
-from app.modules.documents.presentation.schemas import DocumentResponse
+from app.modules.documents.presentation.schemas import DocumentCountResponse, DocumentResponse
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 logger = logging.getLogger(__name__)
@@ -44,6 +44,14 @@ async def list_documents(
 ) -> list[DocumentResponse]:
     documents = await run_in_threadpool(service.list, search, limit, offset, kind)
     return [DocumentResponse.from_document(document) for document in documents]
+
+
+@router.get("/count", response_model=DocumentCountResponse)
+async def count_documents(
+    service: Annotated[ReadDocuments, Depends(get_read_documents)],
+) -> DocumentCountResponse:
+    total = await run_in_threadpool(service.count)
+    return DocumentCountResponse(total=total)
 
 
 @router.get("/{document_id}", response_model=DocumentResponse)

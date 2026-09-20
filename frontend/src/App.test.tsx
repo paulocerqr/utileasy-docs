@@ -44,6 +44,35 @@ afterEach(() => {
 });
 
 describe("App", () => {
+  it("mostra o total cadastrado mesmo após filtrar a lista", async () => {
+    const fetchMock = vi.fn((input: string) => {
+      if (input === "/api/documents/count")
+        return Promise.resolve(jsonResponse({ total: 57 }));
+      const kind = new URL(input, "http://test").searchParams.get("kind");
+      return Promise.resolve(jsonResponse(kind === "image" ? [] : [document]));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<App />);
+    expect(await screen.findByText("57 arquivos no total")).toBeInTheDocument();
+    const searchBlock = screen
+      .getByPlaceholderText("Buscar documento...")
+      .closest("label")?.parentElement;
+    expect(searchBlock).toContainElement(screen.getByRole("status"));
+    fireEvent.click(screen.getByRole("button", { name: "Exibir em ícones" }));
+    expect(searchBlock).toContainElement(screen.getByRole("status"));
+    fireEvent.change(
+      screen.getByRole("combobox", { name: "Tipo de arquivo" }),
+      {
+        target: { value: "image" },
+      },
+    );
+    expect(
+      await screen.findByText("Nenhum documento encontrado para esta busca."),
+    ).toBeInTheDocument();
+    expect(screen.getByText("57 arquivos no total")).toBeInTheDocument();
+  });
+
   it("exibe documentos em ícones e mantém o modo escolhido", async () => {
     const fetchMock = vi.fn((input: string) => {
       if (input === "/api/documents/7")
@@ -56,8 +85,10 @@ describe("App", () => {
 
     const firstVisit = render(<App />);
     await screen.findByRole("button", { name: "Contrato de serviços" });
+    const mainClass = screen.getByRole("main").className;
     fireEvent.click(screen.getByRole("button", { name: "Exibir em ícones" }));
 
+    expect(screen.getByRole("main").className).toBe(mainClass);
     expect(screen.getByLabelText("Documentos em ícones")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Exibir em ícones" }),
@@ -245,6 +276,11 @@ describe("App", () => {
     expect(
       screen.getByRole("heading", { name: "Documentos" }),
     ).toBeInTheDocument();
+    expect(
+      (
+        await screen.findByRole("button", { name: "Contrato de serviços" })
+      ).closest("article"),
+    ).toHaveTextContent("PDF");
     fireEvent.click(
       await screen.findByRole("button", { name: "Contrato de serviços" }),
     );

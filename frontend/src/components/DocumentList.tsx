@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 
 import {
+  getDocumentCount,
   listDocuments,
   type DocumentKind,
   type DocumentRecord,
 } from "../api/documents";
 import { formatDate } from "../lib/format";
 import { DocumentGrid } from "./DocumentGrid";
+import { FileTypeIcon } from "./FileTypeIcon";
 import styles from "./DocumentList.module.css";
 
 interface Props {
@@ -35,6 +37,7 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
   const [kind, setKind] = useState<DocumentKind | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>(savedViewMode);
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
+  const [total, setTotal] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
@@ -45,6 +48,16 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
     const timeout = window.setTimeout(() => setQuery(search.trim()), 300);
     return () => window.clearTimeout(timeout);
   }, [search]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    getDocumentCount(controller.signal)
+      .then(setTotal)
+      .catch(() => {
+        if (!controller.signal.aborted) setTotal(null);
+      });
+    return () => controller.abort();
+  }, [refreshKey]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -100,9 +113,7 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
   }
 
   return (
-    <main
-      className={`${styles.main} ${viewMode === "grid" ? styles.mainGrid : ""}`}
-    >
+    <main className={styles.main}>
       <div className={styles.intro}>
         <h1>Documentos</h1>
         <p>Repositório de documentos.</p>
@@ -110,21 +121,29 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
 
       <div className={styles.toolbar}>
         <div className={styles.filters}>
-          <label className={styles.searchLabel}>
-            <span className="srOnly">Buscar documento</span>
-            <input
-              className="field"
-              type="search"
-              value={search}
-              onChange={(event) => {
-                filterGeneration.current += 1;
-                setSearch(event.target.value);
-                setLoading(true);
-              }}
-              placeholder="Buscar documento..."
-              maxLength={200}
-            />
-          </label>
+          <div className={styles.searchBlock}>
+            <label className={styles.searchLabel}>
+              <span className="srOnly">Buscar documento</span>
+              <input
+                className="field"
+                type="search"
+                value={search}
+                onChange={(event) => {
+                  filterGeneration.current += 1;
+                  setSearch(event.target.value);
+                  setLoading(true);
+                }}
+                placeholder="Buscar documento..."
+                maxLength={200}
+              />
+            </label>
+            {total !== null && (
+              <span className={styles.fileCount} role="status">
+                {total.toLocaleString("pt-BR")}{" "}
+                {total === 1 ? "arquivo" : "arquivos"} no total
+              </span>
+            )}
+          </div>
           <label className={styles.kindLabel}>
             <span className="srOnly">Tipo de arquivo</span>
             <select
@@ -205,10 +224,7 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
           documents.map((document) => (
             <article className={styles.row} key={document.id}>
               <span className={styles.fileIcon} aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M4 1.5h5l3 3V14H4V1.5Z" fill="currentColor" />
-                  <path d="M9 1.5v3h3" stroke="#f3f5f6" strokeWidth="1.2" />
-                </svg>
+                <FileTypeIcon mimeType={document.mime_type} compact />
               </span>
               <div className={styles.fileInfo}>
                 <button

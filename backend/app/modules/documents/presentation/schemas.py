@@ -35,3 +35,7 @@ class DocumentResponse(BaseModel):
 
 class UploadDocumentResponse(DocumentResponse):
     already_exists: bool
+
+
+class DocumentCountResponse(BaseModel):
+    total: int

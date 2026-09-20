@@ -81,6 +81,15 @@ export async function listDocuments(
   return readResponse<DocumentRecord[]>(response);
 }
 
+export async function getDocumentCount(signal?: AbortSignal): Promise<number> {
+  const response = await request("/api/documents/count", { signal });
+  const result = await readResponse<{ total: number }>(response);
+  if (!Number.isSafeInteger(result.total) || result.total < 0) {
+    throw new Error("Não foi possível carregar o total de arquivos.");
+  }
+  return result.total;
+}
+
 export async function getDocument(id: number, signal?: AbortSignal) {
   const response = await request(`/api/documents/${id}`, { signal });
   return readResponse<DocumentRecord>(response);

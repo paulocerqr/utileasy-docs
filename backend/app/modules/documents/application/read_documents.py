@@ -23,5 +23,9 @@ class ReadDocuments:
         with self._unit_of_work() as unit:
             return unit.documents.get_by_id(document_id)
 
+    def count(self) -> int:
+        with self._unit_of_work() as unit:
+            return unit.documents.count_all()
+
     def file_path(self, document: Document) -> Path:
         return self._storage.resolve(document)

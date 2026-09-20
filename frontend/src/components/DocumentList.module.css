@@ -8,10 +8,6 @@
   gap: 1.6rem;
 }
 
-.mainGrid {
-  width: min(100% - 2rem, 70rem);
-}
-
 .intro h1 {
   margin: 0;
   font-size: 1.5rem;
@@ -40,12 +36,25 @@
   gap: 0.75rem;
 }
 
-.searchLabel {
+.searchBlock {
   width: min(100%, 22.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.searchLabel {
+  width: 100%;
 }
 
 .kindLabel {
   width: min(100%, 11rem);
+}
+
+.fileCount {
+  color: var(--color-subtle);
+  font-size: 0.8rem;
+  white-space: nowrap;
 }
 
 .viewSwitcher {
@@ -169,10 +178,6 @@
   color: var(--color-subtle);
   font-size: 0.875rem;
   text-align: center;
-}
-
-.fileIcon svg path:last-child {
-  stroke: var(--color-icon-fold);
 }
 
 .errorArea {

@@ -1,5 +1,6 @@
 import type { DocumentRecord } from "../api/documents";
-import { formatDate, formatType } from "../lib/format";
+import { formatDate } from "../lib/format";
+import { FileTypeIcon } from "./FileTypeIcon";
 import styles from "./DocumentGrid.module.css";
 
 interface Props {
@@ -18,26 +19,7 @@ export function DocumentGrid({ documents, onOpen }: Props) {
             aria-label={document.title}
             onClick={() => onOpen(document.id)}
           >
-            <span className={styles.fileIcon} aria-hidden="true">
-              <svg viewBox="0 0 48 56" fill="none">
-                <path
-                  d="M7 2h23l11 11v38a3 3 0 0 1-3 3H10a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3Z"
-                  fill="var(--color-surface)"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                />
-                <path d="M30 2v11h11" stroke="currentColor" strokeWidth="2" />
-              </svg>
-              <span
-                className={`${styles.badge} ${
-                  document.mime_type === "application/pdf"
-                    ? styles.badgePdf
-                    : styles.badgeImage
-                }`}
-              >
-                {formatType(document.mime_type)}
-              </span>
-            </span>
+            <FileTypeIcon mimeType={document.mime_type} />
             <span className={styles.title} title={document.title}>
               {document.title}
             </span>
