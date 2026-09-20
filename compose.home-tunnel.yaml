@@ -1,0 +1,15 @@
+services:
+  frontend:
+    ports: !reset []
+    volumes:
+      - ./frontend/Caddyfile.home-tunnel:/etc/caddy/Caddyfile:ro
+    networks:
+      default:
+      utileasydoc_edge:
+        aliases:
+          - utileasydoc-frontend
+
+networks:
+  utileasydoc_edge:
+    external: true
+    name: utileasydoc_edge
