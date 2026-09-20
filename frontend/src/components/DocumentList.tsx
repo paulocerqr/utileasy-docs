@@ -6,6 +6,7 @@ import {
   type DocumentRecord,
 } from "../api/documents";
 import { formatDate } from "../lib/format";
+import { DocumentGrid } from "./DocumentGrid";
 import styles from "./DocumentList.module.css";
 
 interface Props {
@@ -14,12 +15,25 @@ interface Props {
 }
 
 const PAGE_SIZE = 50;
+const VIEW_MODE_KEY = "utileasydoc-document-view";
+type ViewMode = "list" | "grid";
+
+function savedViewMode(): ViewMode {
+  try {
+    return window.localStorage.getItem(VIEW_MODE_KEY) === "grid"
+      ? "grid"
+      : "list";
+  } catch {
+    return "list";
+  }
+}
 
 export function DocumentList({ onOpen, refreshKey }: Props) {
   const filterGeneration = useRef(0);
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState<DocumentKind | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>(savedViewMode);
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -76,8 +90,19 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
     }
   }
 
+  function changeViewMode(next: ViewMode) {
+    setViewMode(next);
+    try {
+      window.localStorage.setItem(VIEW_MODE_KEY, next);
+    } catch {
+      // A visualização continua ativa nesta sessão sem armazenamento local.
+    }
+  }
+
   return (
-    <main className={styles.main}>
+    <main
+      className={`${styles.main} ${viewMode === "grid" ? styles.mainGrid : ""}`}
+    >
       <div className={styles.intro}>
         <h1>Documentos</h1>
         <p>
@@ -85,38 +110,66 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
         </p>
       </div>
 
-      <div className={styles.filters}>
-        <label className={styles.searchLabel}>
-          <span className="srOnly">Buscar documento</span>
-          <input
-            className="field"
-            type="search"
-            value={search}
-            onChange={(event) => {
-              filterGeneration.current += 1;
-              setSearch(event.target.value);
-              setLoading(true);
-            }}
-            placeholder="Buscar documento..."
-            maxLength={200}
-          />
-        </label>
-        <label className={styles.kindLabel}>
-          <span className="srOnly">Tipo de arquivo</span>
-          <select
-            className="field"
-            value={kind ?? ""}
-            onChange={(event) => {
-              filterGeneration.current += 1;
-              setKind((event.target.value || null) as DocumentKind | null);
-              setLoading(true);
-            }}
+      <div className={styles.toolbar}>
+        <div className={styles.filters}>
+          <label className={styles.searchLabel}>
+            <span className="srOnly">Buscar documento</span>
+            <input
+              className="field"
+              type="search"
+              value={search}
+              onChange={(event) => {
+                filterGeneration.current += 1;
+                setSearch(event.target.value);
+                setLoading(true);
+              }}
+              placeholder="Buscar documento..."
+              maxLength={200}
+            />
+          </label>
+          <label className={styles.kindLabel}>
+            <span className="srOnly">Tipo de arquivo</span>
+            <select
+              className="field"
+              value={kind ?? ""}
+              onChange={(event) => {
+                filterGeneration.current += 1;
+                setKind((event.target.value || null) as DocumentKind | null);
+                setLoading(true);
+              }}
+            >
+              <option value="">Todos os tipos</option>
+              <option value="pdf">PDF</option>
+              <option value="image">Imagens</option>
+            </select>
+          </label>
+        </div>
+        <div
+          className={styles.viewSwitcher}
+          role="group"
+          aria-label="Modo de exibição"
+        >
+          <button
+            className={`${styles.viewButton} ${viewMode === "list" ? styles.viewButtonActive : ""}`}
+            type="button"
+            aria-label="Exibir em lista"
+            aria-pressed={viewMode === "list"}
+            onClick={() => changeViewMode("list")}
           >
-            <option value="">Todos os tipos</option>
-            <option value="pdf">PDF</option>
-            <option value="image">Imagens</option>
-          </select>
-        </label>
+            <span aria-hidden="true">☰</span>
+            <span>Lista</span>
+          </button>
+          <button
+            className={`${styles.viewButton} ${viewMode === "grid" ? styles.viewButtonActive : ""}`}
+            type="button"
+            aria-label="Exibir em ícones"
+            aria-pressed={viewMode === "grid"}
+            onClick={() => changeViewMode("grid")}
+          >
+            <span aria-hidden="true">▦</span>
+            <span>Ícones</span>
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -136,7 +189,10 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
         </div>
       )}
 
-      <div className={styles.list} aria-busy={loading}>
+      <div
+        className={viewMode === "list" ? styles.list : styles.gridContainer}
+        aria-busy={loading}
+      >
         {loading ? (
           <p className={styles.status}>Carregando documentos...</p>
         ) : documents.length === 0 ? (
@@ -145,6 +201,8 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
               ? "Nenhum documento encontrado para esta busca."
               : "Nenhum documento cadastrado ainda."}
           </p>
+        ) : viewMode === "grid" ? (
+          <DocumentGrid documents={documents} onOpen={onOpen} />
         ) : (
           documents.map((document) => (
             <article className={styles.row} key={document.id}>

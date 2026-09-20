@@ -44,6 +44,39 @@ afterEach(() => {
 });
 
 describe("App", () => {
+  it("exibe documentos em ícones e mantém o modo escolhido", async () => {
+    const fetchMock = vi.fn((input: string) => {
+      if (input === "/api/documents/7")
+        return Promise.resolve(jsonResponse(document));
+      if (input.startsWith("/api/documents/7/comments"))
+        return Promise.resolve(jsonResponse([]));
+      return Promise.resolve(jsonResponse([document]));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const firstVisit = render(<App />);
+    await screen.findByRole("button", { name: "Contrato de serviços" });
+    fireEvent.click(screen.getByRole("button", { name: "Exibir em ícones" }));
+
+    expect(screen.getByLabelText("Documentos em ícones")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Exibir em ícones" }),
+    ).toHaveAttribute("aria-pressed", "true");
+    expect(
+      screen.getByRole("link", { name: "Baixar Contrato de serviços" }),
+    ).toHaveAttribute("href", document.download_url);
+    expect(window.localStorage.getItem("utileasydoc-document-view")).toBe(
+      "grid",
+    );
+
+    firstVisit.unmount();
+    render(<App />);
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Contrato de serviços" }),
+    );
+    expect(window.location.pathname).toBe("/documents/7");
+  });
+
   it("filtra PDFs e imagens junto com a busca textual", async () => {
     const image = {
       ...document,
