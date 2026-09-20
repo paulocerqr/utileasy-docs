@@ -1,5 +1,7 @@
 # UtileasyDoc
 
+[Acessar a aplicação](https://docs.utileasy.com.br/)
+
 Aplicação para armazenar documentos e registrar comentários. Desenvolvida com React, Vite e TypeScript no frontend, FastAPI no backend e PostgreSQL, com execução via Docker Compose.
 
 ## Funcionalidades
