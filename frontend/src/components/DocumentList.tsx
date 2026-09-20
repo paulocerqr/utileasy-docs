@@ -105,9 +105,7 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
     >
       <div className={styles.intro}>
         <h1>Documentos</h1>
-        <p>
-          <p>Repositório de documentos.</p>
-        </p>
+        <p>Repositório de documentos.</p>
       </div>
 
       <div className={styles.toolbar}>
