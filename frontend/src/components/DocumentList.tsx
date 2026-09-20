@@ -1,6 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { listDocuments, type DocumentRecord } from "../api/documents";
+import {
+  listDocuments,
+  type DocumentKind,
+  type DocumentRecord,
+} from "../api/documents";
 import { formatDate } from "../lib/format";
 import styles from "./DocumentList.module.css";
 
@@ -12,8 +16,10 @@ interface Props {
 const PAGE_SIZE = 50;
 
 export function DocumentList({ onOpen, refreshKey }: Props) {
+  const filterGeneration = useRef(0);
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
+  const [kind, setKind] = useState<DocumentKind | null>(null);
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -28,7 +34,7 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
 
   useEffect(() => {
     const controller = new AbortController();
-    listDocuments(query, 0, controller.signal)
+    listDocuments(query, 0, kind, controller.signal)
       .then((items) => {
         setDocuments(items);
         setHasMore(items.length === PAGE_SIZE);
@@ -47,16 +53,19 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [query, refreshKey, retryKey]);
+  }, [query, kind, refreshKey, retryKey]);
 
   async function loadMore() {
+    const generation = filterGeneration.current;
     setLoadingMore(true);
     try {
-      const items = await listDocuments(query, documents.length);
+      const items = await listDocuments(query, documents.length, kind);
+      if (generation !== filterGeneration.current) return;
       setDocuments((current) => [...current, ...items]);
       setHasMore(items.length === PAGE_SIZE);
       setError(null);
     } catch (cause) {
+      if (generation !== filterGeneration.current) return;
       setError(
         cause instanceof Error
           ? cause.message
@@ -76,20 +85,39 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
         </p>
       </div>
 
-      <label className={styles.searchLabel}>
-        <span className="srOnly">Buscar documento</span>
-        <input
-          className="field"
-          type="search"
-          value={search}
-          onChange={(event) => {
-            setSearch(event.target.value);
-            setLoading(true);
-          }}
-          placeholder="Buscar documento..."
-          maxLength={200}
-        />
-      </label>
+      <div className={styles.filters}>
+        <label className={styles.searchLabel}>
+          <span className="srOnly">Buscar documento</span>
+          <input
+            className="field"
+            type="search"
+            value={search}
+            onChange={(event) => {
+              filterGeneration.current += 1;
+              setSearch(event.target.value);
+              setLoading(true);
+            }}
+            placeholder="Buscar documento..."
+            maxLength={200}
+          />
+        </label>
+        <label className={styles.kindLabel}>
+          <span className="srOnly">Tipo de arquivo</span>
+          <select
+            className="field"
+            value={kind ?? ""}
+            onChange={(event) => {
+              filterGeneration.current += 1;
+              setKind((event.target.value || null) as DocumentKind | null);
+              setLoading(true);
+            }}
+          >
+            <option value="">Todos os tipos</option>
+            <option value="pdf">PDF</option>
+            <option value="image">Imagens</option>
+          </select>
+        </label>
+      </div>
 
       {error && (
         <div className={styles.errorArea}>
@@ -113,7 +141,7 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
           <p className={styles.status}>Carregando documentos...</p>
         ) : documents.length === 0 ? (
           <p className={styles.status}>
-            {query
+            {query || kind
               ? "Nenhum documento encontrado para esta busca."
               : "Nenhum documento cadastrado ainda."}
           </p>

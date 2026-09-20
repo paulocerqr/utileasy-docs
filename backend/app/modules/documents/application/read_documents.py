@@ -2,7 +2,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from app.modules.documents.application.unit_of_work import DocumentUnitOfWork
-from app.modules.documents.domain.entities import Document
+from app.modules.documents.domain.entities import Document, DocumentKind
 from app.modules.documents.domain.storage import FileStorage
 
 
@@ -13,9 +13,11 @@ class ReadDocuments:
         self._unit_of_work = unit_of_work
         self._storage = storage
 
-    def list(self, search: str | None, limit: int, offset: int) -> list[Document]:
+    def list(
+        self, search: str | None, limit: int, offset: int, kind: DocumentKind | None = None
+    ) -> list[Document]:
         with self._unit_of_work() as unit:
-            return unit.documents.list_all(search=search, limit=limit, offset=offset)
+            return unit.documents.list_all(search=search, limit=limit, offset=offset, kind=kind)
 
     def get(self, document_id: int) -> Document | None:
         with self._unit_of_work() as unit:

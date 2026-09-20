@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Literal
 
 AllowedMimeType = Literal["application/pdf", "image/jpeg", "image/png"]
+DocumentKind = Literal["pdf", "image"]
 
 
 @dataclass(frozen=True, slots=True)

@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from app.modules.documents.domain.entities import Document, NewDocument
+from app.modules.documents.domain.entities import Document, DocumentKind, NewDocument
 
 
 class DocumentRepository(Protocol):
@@ -13,5 +13,9 @@ class DocumentRepository(Protocol):
     def get_by_id(self, document_id: int) -> Document | None: ...
 
     def list_all(
-        self, search: str | None = None, limit: int = 50, offset: int = 0
+        self,
+        search: str | None = None,
+        limit: int = 50,
+        offset: int = 0,
+        kind: DocumentKind | None = None,
     ) -> list[Document]: ...

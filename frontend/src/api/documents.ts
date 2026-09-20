@@ -15,6 +15,8 @@ export interface UploadResult extends DocumentRecord {
   already_exists: boolean;
 }
 
+export type DocumentKind = "pdf" | "image";
+
 export interface CommentRecord {
   id: number;
   document_id: number;
@@ -69,10 +71,12 @@ async function request(input: string, init?: RequestInit): Promise<Response> {
 export async function listDocuments(
   search: string,
   offset: number,
+  kind: DocumentKind | null,
   signal?: AbortSignal,
 ) {
   const params = new URLSearchParams({ limit: "50", offset: String(offset) });
   if (search.trim()) params.set("search", search.trim());
+  if (kind) params.set("kind", kind);
   const response = await request(`/api/documents?${params}`, { signal });
   return readResponse<DocumentRecord[]>(response);
 }

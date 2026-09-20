@@ -44,6 +44,70 @@ afterEach(() => {
 });
 
 describe("App", () => {
+  it("filtra PDFs e imagens junto com a busca textual", async () => {
+    const image = {
+      ...document,
+      id: 8,
+      title: "Foto do contrato",
+      original_filename: "foto.png",
+      mime_type: "image/png",
+    };
+    const fetchMock = vi.fn((input: string) => {
+      const params = new URL(input, "http://test").searchParams;
+      const items = [document, image].filter((item) => {
+        const kind = params.get("kind");
+        const search = params.get("search");
+        return (
+          (!kind ||
+            (kind === "pdf"
+              ? item.mime_type === "application/pdf"
+              : item.mime_type.startsWith("image/"))) &&
+          (!search || item.title.toLowerCase().includes(search.toLowerCase()))
+        );
+      });
+      return Promise.resolve(jsonResponse(items));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<App />);
+    expect(
+      await screen.findByRole("button", { name: "Foto do contrato" }),
+    ).toBeInTheDocument();
+    fireEvent.change(
+      screen.getByRole("combobox", { name: "Tipo de arquivo" }),
+      {
+        target: { value: "pdf" },
+      },
+    );
+    expect(
+      await screen.findByRole("button", { name: "Contrato de serviços" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Foto do contrato" }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.change(
+      screen.getByRole("combobox", { name: "Tipo de arquivo" }),
+      {
+        target: { value: "image" },
+      },
+    );
+    fireEvent.change(screen.getByPlaceholderText("Buscar documento..."), {
+      target: { value: "foto" },
+    });
+    expect(
+      await screen.findByRole("button", { name: "Foto do contrato" }),
+    ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringMatching(
+          /kind=image.*search=foto|search=foto.*kind=image/,
+        ),
+        expect.anything(),
+      ),
+    );
+  });
+
   it("alterna o tema e mantém a escolha em visitas futuras", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse([])));
 

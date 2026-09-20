@@ -3,7 +3,12 @@ from typing import cast
 from sqlalchemy import Select, select, text
 from sqlalchemy.orm import Session
 
-from app.modules.documents.domain.entities import AllowedMimeType, Document, NewDocument
+from app.modules.documents.domain.entities import (
+    AllowedMimeType,
+    Document,
+    DocumentKind,
+    NewDocument,
+)
 from app.modules.documents.infrastructure.models import DocumentModel
 
 
@@ -40,7 +45,11 @@ class SqlAlchemyDocumentRepository:
         return self._to_entity(model) if model is not None else None
 
     def list_all(
-        self, search: str | None = None, limit: int = 50, offset: int = 0
+        self,
+        search: str | None = None,
+        limit: int = 50,
+        offset: int = 0,
+        kind: DocumentKind | None = None,
     ) -> list[Document]:
         statement: Select[tuple[DocumentModel]] = select(DocumentModel)
 
@@ -49,6 +58,11 @@ class SqlAlchemyDocumentRepository:
                 DocumentModel.title.icontains(normalized_search, autoescape=True)
                 | DocumentModel.description.icontains(normalized_search, autoescape=True)
             )
+
+        if kind == "pdf":
+            statement = statement.where(DocumentModel.mime_type == "application/pdf")
+        elif kind == "image":
+            statement = statement.where(DocumentModel.mime_type.in_(("image/png", "image/jpeg")))
 
         statement = (
             statement.order_by(DocumentModel.uploaded_at.desc(), DocumentModel.id.desc())

@@ -9,7 +9,7 @@ from app.config.settings import get_settings
 from app.infrastructure.database.session import SessionFactory
 from app.infrastructure.storage.local import LocalFileStorage
 from app.modules.documents.application.read_documents import ReadDocuments
-from app.modules.documents.domain.entities import Document
+from app.modules.documents.domain.entities import Document, DocumentKind
 from app.modules.documents.domain.storage import StoredFileUnavailableError
 from app.modules.documents.infrastructure.unit_of_work import SqlAlchemyDocumentUnitOfWork
 from app.modules.documents.presentation.schemas import DocumentResponse
@@ -40,8 +40,9 @@ async def list_documents(
     search: Annotated[str | None, Query(max_length=200)] = None,
     limit: Annotated[int, Query(ge=1, le=100)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
+    kind: DocumentKind | None = None,
 ) -> list[DocumentResponse]:
-    documents = await run_in_threadpool(service.list, search, limit, offset)
+    documents = await run_in_threadpool(service.list, search, limit, offset, kind)
     return [DocumentResponse.from_document(document) for document in documents]
 
 
