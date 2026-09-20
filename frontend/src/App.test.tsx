@@ -41,6 +41,34 @@ afterEach(() => {
 });
 
 describe("App", () => {
+  it("sugere o nome original como título sem substituir uma edição manual", () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse([])));
+
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Novo documento" }));
+    const title = screen.getByPlaceholderText(
+      "Ex: Contrato de prestação de serviços",
+    );
+    const file = screen.getByLabelText("Arquivo");
+
+    fireEvent.change(file, {
+      target: {
+        files: [
+          new File(["pdf"], "Contrato final.pdf", { type: "application/pdf" }),
+        ],
+      },
+    });
+    expect(title).toHaveValue("Contrato final");
+
+    fireEvent.change(title, { target: { value: "Contrato revisado" } });
+    fireEvent.change(file, {
+      target: {
+        files: [new File(["png"], "Anexo.png", { type: "image/png" })],
+      },
+    });
+    expect(title).toHaveValue("Contrato revisado");
+  });
+
   it("mostra documentos e abre o detalhe com histórico", async () => {
     const fetchMock = vi.fn((input: string) => {
       if (input.startsWith("/api/documents/7/comments"))

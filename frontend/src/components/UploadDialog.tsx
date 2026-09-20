@@ -21,6 +21,7 @@ export function UploadDialog({ onClose, onUploaded }: Props) {
   const dialogRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const titleEdited = useRef(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -73,6 +74,12 @@ export function UploadDialog({ onClose, onUploaded }: Props) {
       return;
     }
     setFile(candidate);
+    if (!titleEdited.current) {
+      const suggestedTitle = candidate.name
+        .replace(/\.(pdf|png|jpe?g)$/i, "")
+        .trim();
+      setTitle((suggestedTitle || candidate.name).slice(0, 255));
+    }
     setError(null);
   }
 
@@ -146,7 +153,10 @@ export function UploadDialog({ onClose, onUploaded }: Props) {
                 ref={titleRef}
                 className="field"
                 value={title}
-                onChange={(event) => setTitle(event.target.value)}
+                onChange={(event) => {
+                  titleEdited.current = true;
+                  setTitle(event.target.value);
+                }}
                 placeholder="Ex: Contrato de prestação de serviços"
                 required
                 minLength={1}
