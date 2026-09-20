@@ -101,12 +101,29 @@
 }
 
 .row {
+  position: relative;
   min-height: 4.55rem;
   padding: 0.85rem 1.1rem;
   display: grid;
   grid-template-columns: 2.8rem minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 1rem;
+}
+
+.row:hover,
+.row:focus-within {
+  background: var(--color-surface-hover);
+}
+
+.openLink {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.openLink:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: -2px;
 }
 
 .row + .row {
@@ -131,23 +148,19 @@
   gap: 0.1rem;
 }
 
-.titleButton {
+.title {
   width: fit-content;
   max-width: 100%;
-  border: 0;
-  padding: 0;
-  background: transparent;
   color: var(--color-text);
   font-size: 0.875rem;
   font-weight: 500;
   text-align: left;
-  cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.titleButton:hover {
+.row:hover .title {
   text-decoration: underline;
 }
 
@@ -168,6 +181,8 @@
 }
 
 .actions {
+  position: relative;
+  z-index: 2;
   display: flex;
   gap: 0.5rem;
 }

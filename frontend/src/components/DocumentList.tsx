@@ -223,16 +223,28 @@ export function DocumentList({ onOpen, refreshKey }: Props) {
         ) : (
           documents.map((document) => (
             <article className={styles.row} key={document.id}>
+              <a
+                className={styles.openLink}
+                href={`/documents/${document.id}`}
+                aria-label={`Abrir ${document.title}`}
+                onClick={(event) => {
+                  if (
+                    event.button === 0 &&
+                    !event.metaKey &&
+                    !event.ctrlKey &&
+                    !event.shiftKey &&
+                    !event.altKey
+                  ) {
+                    event.preventDefault();
+                    onOpen(document.id);
+                  }
+                }}
+              />
               <span className={styles.fileIcon} aria-hidden="true">
                 <FileTypeIcon mimeType={document.mime_type} compact />
               </span>
               <div className={styles.fileInfo}>
-                <button
-                  className={styles.titleButton}
-                  onClick={() => onOpen(document.id)}
-                >
-                  {document.title}
-                </button>
+                <span className={styles.title}>{document.title}</span>
                 <span className={styles.filename}>
                   {document.original_filename}
                 </span>

@@ -84,7 +84,7 @@ describe("App", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const firstVisit = render(<App />);
-    await screen.findByRole("button", { name: "Contrato de serviços" });
+    await screen.findByRole("link", { name: "Abrir Contrato de serviços" });
     const mainClass = screen.getByRole("main").className;
     fireEvent.click(screen.getByRole("button", { name: "Exibir em ícones" }));
 
@@ -103,7 +103,7 @@ describe("App", () => {
     firstVisit.unmount();
     render(<App />);
     fireEvent.click(
-      await screen.findByRole("button", { name: "Contrato de serviços" }),
+      await screen.findByRole("link", { name: "Abrir Contrato de serviços" }),
     );
     expect(window.location.pathname).toBe("/documents/7");
   });
@@ -135,7 +135,7 @@ describe("App", () => {
 
     render(<App />);
     expect(
-      await screen.findByRole("button", { name: "Foto do contrato" }),
+      await screen.findByRole("link", { name: "Abrir Foto do contrato" }),
     ).toBeInTheDocument();
     fireEvent.change(
       screen.getByRole("combobox", { name: "Tipo de arquivo" }),
@@ -144,10 +144,10 @@ describe("App", () => {
       },
     );
     expect(
-      await screen.findByRole("button", { name: "Contrato de serviços" }),
+      await screen.findByRole("link", { name: "Abrir Contrato de serviços" }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: "Foto do contrato" }),
+      screen.queryByRole("link", { name: "Abrir Foto do contrato" }),
     ).not.toBeInTheDocument();
 
     fireEvent.change(
@@ -160,7 +160,7 @@ describe("App", () => {
       target: { value: "foto" },
     });
     expect(
-      await screen.findByRole("button", { name: "Foto do contrato" }),
+      await screen.findByRole("link", { name: "Abrir Foto do contrato" }),
     ).toBeInTheDocument();
     await waitFor(() =>
       expect(fetchMock).toHaveBeenCalledWith(
@@ -278,11 +278,11 @@ describe("App", () => {
     ).toBeInTheDocument();
     expect(
       (
-        await screen.findByRole("button", { name: "Contrato de serviços" })
+        await screen.findByRole("link", { name: "Abrir Contrato de serviços" })
       ).closest("article"),
     ).toHaveTextContent("PDF");
     fireEvent.click(
-      await screen.findByRole("button", { name: "Contrato de serviços" }),
+      await screen.findByRole("link", { name: "Abrir Contrato de serviços" }),
     );
     expect(
       await screen.findByRole("heading", { name: "Contrato de serviços" }),

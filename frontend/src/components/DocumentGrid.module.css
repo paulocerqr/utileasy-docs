@@ -23,19 +23,28 @@
   box-shadow: 0 0.35rem 1rem rgb(0 0 0 / 8%);
 }
 
-.openButton {
+.openLink {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.openLink:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: -2px;
+}
+
+.content {
   width: 100%;
   min-height: 10.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 0;
   border-radius: inherit;
   padding: 0.95rem 0.65rem 2rem;
-  background: transparent;
   color: var(--color-text);
   text-align: center;
-  cursor: pointer;
 }
 
 .title {
@@ -59,6 +68,7 @@
 
 .actions {
   position: absolute;
+  z-index: 2;
   right: 0.4rem;
   bottom: 0.3rem;
   left: 0.4rem;

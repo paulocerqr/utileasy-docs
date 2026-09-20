@@ -13,12 +13,24 @@ export function DocumentGrid({ documents, onOpen }: Props) {
     <div className={styles.grid} aria-label="Documentos em ícones">
       {documents.map((document) => (
         <article className={styles.card} key={document.id}>
-          <button
-            className={styles.openButton}
-            type="button"
-            aria-label={document.title}
-            onClick={() => onOpen(document.id)}
-          >
+          <a
+            className={styles.openLink}
+            href={`/documents/${document.id}`}
+            aria-label={`Abrir ${document.title}`}
+            onClick={(event) => {
+              if (
+                event.button === 0 &&
+                !event.metaKey &&
+                !event.ctrlKey &&
+                !event.shiftKey &&
+                !event.altKey
+              ) {
+                event.preventDefault();
+                onOpen(document.id);
+              }
+            }}
+          />
+          <div className={styles.content}>
             <FileTypeIcon mimeType={document.mime_type} />
             <span className={styles.title} title={document.title}>
               {document.title}
@@ -26,7 +38,7 @@ export function DocumentGrid({ documents, onOpen }: Props) {
             <time className={styles.date} dateTime={document.uploaded_at}>
               {formatDate(document.uploaded_at)}
             </time>
-          </button>
+          </div>
           <div className={styles.actions}>
             <a
               href={document.view_url}
