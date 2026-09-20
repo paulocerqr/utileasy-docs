@@ -1,13 +1,13 @@
 .panel {
   min-width: 0;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--color-border);
   border-radius: 0.5rem;
   overflow: hidden;
 }
 .panel h2 {
   margin: 0;
   padding: 0.9rem 1.25rem;
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid var(--color-border);
   font-size: 0.95rem;
 }
 .history {
@@ -19,7 +19,7 @@
   padding: 1.1rem 0;
 }
 .comment + .comment {
-  border-top: 1px solid #e5e5e5;
+  border-top: 1px solid var(--color-border);
 }
 .avatar {
   flex: none;
@@ -28,8 +28,8 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #f5f5f5;
-  color: #525252;
+  background: var(--color-surface-hover);
+  color: var(--color-muted);
   font-size: 0.75rem;
   font-weight: 700;
 }
@@ -44,12 +44,12 @@
   overflow-wrap: anywhere;
 }
 .commentBody time {
-  color: #737373;
+  color: var(--color-subtle);
   font-size: 0.72rem;
 }
 .commentBody p {
   margin: 0.45rem 0 0;
-  color: #525252;
+  color: var(--color-muted);
   line-height: 1.5;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -57,7 +57,7 @@
 .status {
   padding: 1.5rem 0;
   margin: 0;
-  color: #737373;
+  color: var(--color-subtle);
   font-size: 0.8rem;
 }
 .form {
@@ -65,7 +65,7 @@
   flex-direction: column;
   gap: 0.8rem;
   padding: 1rem 1.25rem;
-  border-top: 1px solid #e5e5e5;
+  border-top: 1px solid var(--color-border);
 }
 .form button {
   align-self: flex-end;

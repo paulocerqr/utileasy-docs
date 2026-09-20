@@ -1,4 +1,24 @@
 :root {
+  color-scheme: light;
+  --color-text: #171717;
+  --color-muted: #525252;
+  --color-subtle: #737373;
+  --color-placeholder: #858585;
+  --color-border: #e5e5e5;
+  --color-field-border: #d4d4d4;
+  --color-surface: #fff;
+  --color-surface-alt: #fafafa;
+  --color-surface-muted: #f3f5f6;
+  --color-surface-hover: #f5f5f5;
+  --color-primary: #171717;
+  --color-primary-hover: #404040;
+  --color-primary-text: #fff;
+  --color-icon: #737373;
+  --color-icon-fold: #f3f5f6;
+  --color-notice-bg: #eff6ff;
+  --color-notice-text: #1e40af;
+  --color-danger: #b91c1c;
+  --color-focus: #171717;
   font-family:
     Inter,
     ui-sans-serif,
@@ -7,10 +27,33 @@
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  color: #171717;
-  background: #ffffff;
+  color: var(--color-text);
+  background: var(--color-surface);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-text: #f2f3f5;
+  --color-muted: #c5c8ce;
+  --color-subtle: #a4a9b2;
+  --color-placeholder: #9299a4;
+  --color-border: #343a43;
+  --color-field-border: #4b535f;
+  --color-surface: #171b21;
+  --color-surface-alt: #1d222a;
+  --color-surface-muted: #292f38;
+  --color-surface-hover: #303741;
+  --color-primary: #f2f3f5;
+  --color-primary-hover: #d8dbe0;
+  --color-primary-text: #171b21;
+  --color-icon: #c5c8ce;
+  --color-icon-fold: #292f38;
+  --color-notice-bg: #182c4b;
+  --color-notice-text: #bad5ff;
+  --color-danger: #ff9b9b;
+  --color-focus: #bad5ff;
 }
 
 * {
@@ -19,7 +62,7 @@
 
 html {
   min-width: 20rem;
-  background: #ffffff;
+  background: var(--color-surface);
 }
 
 body {
@@ -39,7 +82,7 @@ a:focus-visible,
 [role="button"]:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #171717;
+  outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -64,57 +107,57 @@ textarea:focus-visible {
   cursor: not-allowed;
 }
 .buttonPrimary {
-  background: #171717;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-primary-text);
 }
 .buttonPrimary:hover:not(:disabled) {
-  background: #404040;
+  background: var(--color-primary-hover);
 }
 .buttonSecondary {
-  border-color: #d4d4d4;
-  background: #fff;
-  color: #404040;
+  border-color: var(--color-field-border);
+  background: var(--color-surface);
+  color: var(--color-muted);
 }
 .buttonSecondary:hover:not(:disabled) {
-  background: #f5f5f5;
+  background: var(--color-surface-hover);
 }
 .buttonMuted {
-  border-color: #d4d4d4;
-  background: #f5f5f5;
-  color: #171717;
+  border-color: var(--color-field-border);
+  background: var(--color-surface-hover);
+  color: var(--color-text);
 }
 .buttonMuted:hover:not(:disabled) {
-  background: #e5e5e5;
+  background: var(--color-surface-muted);
 }
 
 .fieldGroup {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  color: #404040;
+  color: var(--color-muted);
   font-size: 0.8rem;
   font-weight: 500;
 }
 .field {
   width: 100%;
   min-height: 2.5rem;
-  border: 1px solid #d4d4d4;
+  border: 1px solid var(--color-field-border);
   border-radius: 0.35rem;
   padding: 0.55rem 0.75rem;
-  background: #fff;
-  color: #171717;
+  background: var(--color-surface);
+  color: var(--color-text);
   font-size: 0.875rem;
   font-weight: 400;
 }
 .field::placeholder {
-  color: #a3a3a3;
+  color: var(--color-placeholder);
 }
 textarea.field {
   resize: vertical;
 }
 .errorMessage {
   margin: 0;
-  color: #b91c1c;
+  color: var(--color-danger);
   font-size: 0.85rem;
   line-height: 1.4;
 }

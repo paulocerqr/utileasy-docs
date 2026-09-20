@@ -8,14 +8,14 @@
   border: 0;
   padding: 0;
   background: transparent;
-  color: #525252;
+  color: var(--color-muted);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
 }
 
 .back:hover {
-  color: #171717;
+  color: var(--color-text);
   text-decoration: underline;
 }
 .layout {
@@ -28,7 +28,7 @@
 .documentCard {
   min-width: 0;
   overflow: hidden;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--color-border);
   border-radius: 0.5rem;
 }
 .documentHeader {
@@ -44,7 +44,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem 0.8rem;
-  color: #737373;
+  color: var(--color-subtle);
   font-size: 0.8rem;
 }
 .metadata span:first-child {
@@ -52,7 +52,7 @@
 }
 .description {
   margin: 1.25rem 0 0;
-  color: #525252;
+  color: var(--color-muted);
   font-size: 0.875rem;
   line-height: 1.6;
   white-space: pre-wrap;
@@ -67,8 +67,8 @@
 .previewArea {
   min-height: 24rem;
   padding: 1.5rem;
-  border-top: 1px solid #e5e5e5;
-  background: #fafafa;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
   display: grid;
   place-items: center;
 }
@@ -77,7 +77,7 @@
   min-height: 34rem;
   border: 0;
   border-radius: 0.35rem;
-  background: #fff;
+  background: var(--color-surface);
 }
 .imagePreview {
   display: block;
@@ -88,12 +88,12 @@
 .notice {
   padding: 0.8rem 1rem;
   border-radius: 0.4rem;
-  background: #eff6ff;
-  color: #1e40af;
+  background: var(--color-notice-bg);
+  color: var(--color-notice-text);
   font-size: 0.875rem;
 }
 .status {
-  color: #737373;
+  color: var(--color-subtle);
 }
 
 .errorArea {

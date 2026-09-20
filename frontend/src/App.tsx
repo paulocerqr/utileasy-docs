@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { DocumentDetail } from "./components/DocumentDetail";
 import { DocumentList } from "./components/DocumentList";
 import { UploadDialog } from "./components/UploadDialog";
+import { useTheme } from "./lib/useTheme";
 import styles from "./App.module.css";
 
 function documentIdFromPath() {
@@ -11,6 +12,7 @@ function documentIdFromPath() {
 }
 
 export function App() {
+  const { theme, toggleTheme } = useTheme();
   const [documentId, setDocumentId] = useState(documentIdFromPath);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -43,12 +45,28 @@ export function App() {
           >
             UtileasyDoc
           </a>
-          <button
-            className="button buttonPrimary"
-            onClick={() => setUploadOpen(true)}
-          >
-            Novo documento
-          </button>
+          <div className={styles.headerActions}>
+            <button
+              className="button buttonSecondary"
+              type="button"
+              onClick={toggleTheme}
+              aria-label={
+                theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"
+              }
+              title={theme === "dark" ? "Modo claro" : "Modo escuro"}
+            >
+              <span aria-hidden="true">{theme === "dark" ? "☀" : "☾"}</span>
+              <span className={styles.themeLabel}>
+                {theme === "dark" ? "Modo claro" : "Modo escuro"}
+              </span>
+            </button>
+            <button
+              className="button buttonPrimary"
+              onClick={() => setUploadOpen(true)}
+            >
+              Novo documento
+            </button>
+          </div>
         </div>
       </header>
 

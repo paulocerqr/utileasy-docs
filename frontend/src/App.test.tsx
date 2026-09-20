@@ -1,4 +1,5 @@
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -32,6 +33,8 @@ function jsonResponse(body: unknown, status = 200): Response {
 
 beforeEach(() => {
   window.history.replaceState(null, "", "/");
+  window.localStorage.clear();
+  window.document.documentElement.removeAttribute("data-theme");
   vi.stubGlobal("scrollTo", vi.fn());
 });
 
@@ -41,6 +44,66 @@ afterEach(() => {
 });
 
 describe("App", () => {
+  it("alterna o tema e mantém a escolha em visitas futuras", () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse([])));
+
+    const firstVisit = render(<App />);
+    expect(window.document.documentElement).toHaveAttribute(
+      "data-theme",
+      "light",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Ativar modo escuro" }));
+    expect(window.document.documentElement).toHaveAttribute(
+      "data-theme",
+      "dark",
+    );
+    expect(window.localStorage.getItem("utileasydoc-theme")).toBe("dark");
+
+    firstVisit.unmount();
+    render(<App />);
+    expect(window.document.documentElement).toHaveAttribute(
+      "data-theme",
+      "dark",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Ativar modo claro" }));
+    expect(window.document.documentElement).toHaveAttribute(
+      "data-theme",
+      "light",
+    );
+    expect(window.localStorage.getItem("utileasydoc-theme")).toBe("light");
+  });
+
+  it("usa a preferência de tema do sistema quando não há escolha salva", () => {
+    const listeners = new Set<(event: MediaQueryListEvent) => void>();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse([])));
+    vi.stubGlobal("matchMedia", () => ({
+      matches: true,
+      addEventListener: (
+        _event: string,
+        listener: (event: MediaQueryListEvent) => void,
+      ) => listeners.add(listener),
+      removeEventListener: (
+        _event: string,
+        listener: (event: MediaQueryListEvent) => void,
+      ) => listeners.delete(listener),
+    }));
+
+    render(<App />);
+    expect(window.document.documentElement).toHaveAttribute(
+      "data-theme",
+      "dark",
+    );
+    act(() => {
+      listeners.forEach((listener) =>
+        listener({ matches: false } as MediaQueryListEvent),
+      );
+    });
+    expect(window.document.documentElement).toHaveAttribute(
+      "data-theme",
+      "light",
+    );
+  });
+
   it("sugere o nome original como título sem substituir uma edição manual", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse([])));
 
