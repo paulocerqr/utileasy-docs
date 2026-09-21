@@ -71,4 +71,4 @@ flowchart LR
     API --> FS[(Volume de arquivos)]
 ```
 
-O UtileasyDoc usa o túnel e o proxy reverso já existentes no Utileasy; banco de dados e arquivos ficam em volumes próprios.
+O UtileasyDoc está hospedado em um servidor caseiro montado em um notebook. O acesso público é feito pelo Cloudflare Tunnel, sem exposição direta do servidor à internet, e o Caddy atua como proxy reverso, encaminhando as requisições para o frontend da aplicação. O endereço [docs.utileasy.com.br](https://docs.utileasy.com.br/) é um subdomínio de [utileasy.com.br](https://utileasy.com.br/). A aplicação reutiliza a infraestrutura de túnel e proxy do Utileasy, enquanto o banco de dados e os arquivos permanecem isolados em volumes próprios.
